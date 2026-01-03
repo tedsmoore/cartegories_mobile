@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchCategories, fetchMetadata } from '../services/firebase';
+import { saveGame } from '../services/database';
 import { Deck, Card, GameState } from '../types';
 
 type GameContextValue = {
@@ -11,6 +12,7 @@ type GameContextValue = {
   drawCard: () => Card | null;
   setActiveDecks: (deckIds: string[]) => void;
   setTimerSeconds: (seconds: number) => void;
+  saveGameResult: () => Promise<void>;
 };
 
 const defaultGameState: GameState = {
@@ -113,6 +115,10 @@ export const GameProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     setGame((current) => ({ ...current, timeRemaining: seconds }));
   };
 
+  const saveGameResult = async () => {
+    await saveGame(game.score, game.drawnCards.length, game.activeDecks);
+  };
+
   const value: GameContextValue = {
     decks,
     loading,
@@ -121,6 +127,7 @@ export const GameProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     drawCard,
     setActiveDecks,
     setTimerSeconds,
+    saveGameResult,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigator';
@@ -7,7 +7,11 @@ import { useGame } from '../state/GameContext';
 type Props = NativeStackScreenProps<RootStackParamList, 'GameOver'>;
 
 const GameOverScreen: React.FC<Props> = ({ navigation }) => {
-  const { game } = useGame();
+  const { game, saveGameResult } = useGame();
+
+  useEffect(() => {
+    saveGameResult().catch(err => console.error('Failed to save game:', err));
+  }, []);
 
   return (
     <View style={styles.container}>

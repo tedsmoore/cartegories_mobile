@@ -4,6 +4,10 @@ import { useFonts } from 'expo-font';
 import RootNavigator from './src/navigation/RootNavigator';
 import { GameProvider } from './src/state/GameContext';
 import { ActivityIndicator, View } from 'react-native';
+import { SQLiteProvider } from 'expo-sqlite';
+import { DB_NAME } from './src/db/db';
+import { initDatabase } from './src/services/database';
+import React from 'react';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -21,9 +25,17 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <GameProvider>
-        <RootNavigator />
-      </GameProvider>
+      <React.Suspense fallback={
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a' }}>
+          <ActivityIndicator size="small" color="#fff" />
+        </View>
+      }>
+        <SQLiteProvider databaseName={DB_NAME} onInit={initDatabase} useSuspense>
+          <GameProvider>
+            <RootNavigator />
+          </GameProvider>
+        </SQLiteProvider>
+      </React.Suspense>
       <StatusBar style="light" />
     </SafeAreaProvider>
   );
