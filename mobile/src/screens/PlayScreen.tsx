@@ -4,16 +4,24 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { useGame } from '../state/GameContext';
 import { Card } from '../types';
+import {getGames} from "../services/database";
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Play'>;
 
 const PlayScreen: React.FC<Props> = ({ navigation }) => {
   const { drawCard, game } = useGame();
   const [currentCard, setCurrentCard] = useState<Card | null>(null);
+  const [gameCount, setGameCount] = useState<number>(0);
 
   useEffect(() => {
     const next = drawCard();
     setCurrentCard(next);
+
+    const fetchGameCount = async () => {
+      const allGames = await getGames();
+      setGameCount(allGames.length);
+    };
+    fetchGameCount();
   }, []);
 
   const onResult = (nailed: boolean) => {
@@ -27,11 +35,12 @@ const PlayScreen: React.FC<Props> = ({ navigation }) => {
     }
     setCurrentCard(next);
   };
-
+  
   return (
     <View style={styles.container}>
       <Text style={styles.timer}>Time: {game.timeRemaining}s</Text>
       <View style={styles.card}>
+        <Text>THERE ARE {gameCount} games</Text>
         <Text style={styles.cardLabel}>Card #{game.cardIndex}</Text>
         <Text style={styles.prompt}>{currentCard?.prompt ?? 'No more cards'}</Text>
       </View>
